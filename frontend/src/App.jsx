@@ -87,7 +87,7 @@ function App() {
         <div className="glow-2"></div>
       </div>
       <Navbar user={user} onLogout={handleLogout} />
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+      <main className="container mx-auto px-4 py-3 max-w-7xl">
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Landing user={user} />} />

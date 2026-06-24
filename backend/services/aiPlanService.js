@@ -4,7 +4,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 /**
  * Generate mock plan if no API keys are provided.
  */
-const generateMockPlan = (healthProfile, flaggedBiomarkers) => {
+const generateMockPlan = (healthProfile, flaggedBiomarkers, reportDetails) => {
   const { dailyCalories, macros, dietaryPreference, goal, allergies } = healthProfile;
   console.log('Generating fallback mock diet and workout plan...');
 
@@ -63,6 +63,15 @@ const generateMockPlan = (healthProfile, flaggedBiomarkers) => {
   ];
 
   const flags = flaggedBiomarkers.map(fb => `${fb.testName} is ${fb.status.toUpperCase()}`);
+  if (reportDetails) {
+    if (reportDetails.riskCategory) flags.push(`Cardiovascular/Endocrine Risk Category: ${reportDetails.riskCategory}`);
+    if (reportDetails.riskScore) flags.push(`Cardiovascular/Endocrine Risk Score: ${reportDetails.riskScore}`);
+  }
+
+  let notes = `Mock AI generated plan. Fit for dietary preference: ${dietaryPreference}, goal: ${goal}. Allergies ignored: ${allergies.join(', ') || 'None'}.`;
+  if (reportDetails && reportDetails.doctorSummary) {
+    notes += ` Under consideration of medical findings: ${reportDetails.doctorSummary}`;
+  }
 
   return {
     dailyCalories,
@@ -70,17 +79,29 @@ const generateMockPlan = (healthProfile, flaggedBiomarkers) => {
     meals: mockMeals,
     workout: mockWorkout,
     flagsConsidered: flags,
-    notes: `Mock AI generated plan. Fit for dietary preference: ${dietaryPreference}, goal: ${goal}. Allergies ignored: ${allergies.join(', ') || 'None'}.`
+    notes
   };
 };
 
 /**
  * Call Gemini API to generate structured plan
  */
-const generateGeminiPlan = async (apiKey, healthProfile, flaggedBiomarkers) => {
+const generateGeminiPlan = async (apiKey, healthProfile, flaggedBiomarkers, reportDetails) => {
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+  let reportContext = '';
+  if (reportDetails) {
+    reportContext = `
+Clinical Risk Assessment from Report:
+- Cardiovascular/Endocrine Risk Score: ${reportDetails.riskScore} (out of 100)
+- Risk Category: ${reportDetails.riskCategory}
+- Doctor's Findings Summary: ${reportDetails.doctorSummary || 'None'}
+- Clinical Recommendations:
+${(reportDetails.healthRecommendations || []).map(r => `  * ${r}`).join('\n') || '  None'}
+`;
+  }
 
   const prompt = `
 You are a certified nutrition and fitness planning assistant. Create a highly customized, safe, 1-day sample meal plan and a 7-day workout schedule for a user.
@@ -104,12 +125,13 @@ Calculated Target Nutrients:
 
 Flagged Medical Biomarkers from Report:
 ${flaggedBiomarkers.map(fb => `- ${fb.testName}: Value is ${fb.status} (${fb.unit})`).join('\n') || 'No flagged biomarkers'}
+${reportContext}
 
 DIETARY COMPLIANCE RULES:
 1. STRICTLY avoid any ingredients related to user allergies.
 2. DO NOT prescribe meat/seafood/eggs if dietary preference is vegetarian or vegan.
-3. Incorporate safety guidelines for medical conditions (e.g., limit sodium/simple sugars for diabetes/hypertension, avoid thyroid-interfering foods for thyroid conditions).
-4. Do NOT diagnose any condition. Only use flags as dietary and exercise considerations.
+3. Incorporate safety guidelines for medical conditions (e.g., limit sodium/simple sugars for diabetes/hypertension, avoid thyroid-interfering foods for thyroid conditions). Specifically adjust the plan to address the cardiovascular/endocrine risks and clinical recommendations detailed in the report.
+4. Do NOT diagnose any condition. Only use flags and clinical findings as dietary and exercise considerations.
 
 FORMATTING RULE:
 You MUST respond with a single valid JSON object only. Do not wrap the JSON in markdown code blocks, do not write any introductory or concluding text.
@@ -154,8 +176,20 @@ Required JSON Structure:
 /**
  * Call Anthropic API to generate structured plan
  */
-const generateAnthropicPlan = async (apiKey, healthProfile, flaggedBiomarkers) => {
+const generateAnthropicPlan = async (apiKey, healthProfile, flaggedBiomarkers, reportDetails) => {
   const anthropic = new Anthropic({ apiKey });
+
+  let reportContext = '';
+  if (reportDetails) {
+    reportContext = `
+Clinical Risk Assessment from Report:
+- Cardiovascular/Endocrine Risk Score: ${reportDetails.riskScore} (out of 100)
+- Risk Category: ${reportDetails.riskCategory}
+- Doctor's Findings Summary: ${reportDetails.doctorSummary || 'None'}
+- Clinical Recommendations:
+${(reportDetails.healthRecommendations || []).map(r => `  * ${r}`).join('\n') || '  None'}
+`;
+  }
 
   const prompt = `
 You are a certified nutrition and fitness planning assistant. Create a highly customized, safe, 1-day sample meal plan and a 7-day workout schedule for a user.
@@ -179,11 +213,12 @@ Calculated Target Nutrients:
 
 Flagged Medical Biomarkers from Report:
 ${flaggedBiomarkers.map(fb => `- ${fb.testName}: Value is ${fb.status} (${fb.unit})`).join('\n') || 'No flagged biomarkers'}
+${reportContext}
 
 DIETARY COMPLIANCE RULES:
 1. STRICTLY avoid any ingredients related to user allergies.
 2. DO NOT prescribe meat/seafood/eggs if dietary preference is vegetarian or vegan.
-3. Incorporate safety guidelines for medical conditions.
+3. Incorporate safety guidelines for medical conditions. Specifically adjust the plan to address the cardiovascular/endocrine risks and clinical recommendations detailed in the report.
 4. Do NOT diagnose any condition.
 
 Respond with ONLY valid JSON matching this structure:
@@ -232,13 +267,13 @@ Respond with ONLY valid JSON matching this structure:
 /**
  * Main service method to generate plans
  */
-const generateAIPlan = async (healthProfile, flaggedBiomarkers) => {
+const generateAIPlan = async (healthProfile, flaggedBiomarkers, reportDetails = null) => {
   const geminiKey = process.env.GEMINI_API_KEY;
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
 
   if (geminiKey) {
     try {
-      return await generateGeminiPlan(geminiKey, healthProfile, flaggedBiomarkers);
+      return await generateGeminiPlan(geminiKey, healthProfile, flaggedBiomarkers, reportDetails);
     } catch (e) {
       console.warn('Gemini Generation failed, falling back to mock plan:', e.message);
     }
@@ -246,14 +281,14 @@ const generateAIPlan = async (healthProfile, flaggedBiomarkers) => {
 
   if (anthropicKey) {
     try {
-      return await generateAnthropicPlan(anthropicKey, healthProfile, flaggedBiomarkers);
+      return await generateAnthropicPlan(anthropicKey, healthProfile, flaggedBiomarkers, reportDetails);
     } catch (e) {
       console.warn('Anthropic Generation failed, falling back to mock plan:', e.message);
     }
   }
 
   // Fallback to mock generation
-  return generateMockPlan(healthProfile, flaggedBiomarkers);
+  return generateMockPlan(healthProfile, flaggedBiomarkers, reportDetails);
 };
 
 module.exports = { generateAIPlan };

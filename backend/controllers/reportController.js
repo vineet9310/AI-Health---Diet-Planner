@@ -40,13 +40,22 @@ const uploadReport = async (req, res) => {
       console.log(`Extracting biomarkers from OCR text...`);
       const { biomarkers, hasCriticalFlag } = await extractBiomarkers(extractedText);
 
+      // Generate clinical risk score, summary, and custom recommendations
+      const { generateReportAnalytics } = require('../services/analyticsService');
+      const { riskScore, riskCategory, doctorSummary, healthRecommendations, riskFactors } = generateReportAnalytics(biomarkers);
+
       report.rawExtractedText = extractedText;
       report.biomarkers = biomarkers;
       report.hasCriticalFlag = hasCriticalFlag;
+      report.riskScore = riskScore;
+      report.riskCategory = riskCategory;
+      report.riskFactors = riskFactors;
+      report.doctorSummary = doctorSummary;
+      report.healthRecommendations = healthRecommendations;
       report.analysisStatus = 'processed';
       
       await report.save();
-      console.log(`Report processing completed for ID: ${report._id}. Biomarkers found: ${biomarkers.length}, Critical flags: ${hasCriticalFlag}`);
+      console.log(`Report processing completed for ID: ${report._id}. Biomarkers: ${biomarkers.length}, Risk Score: ${riskScore}, Critical: ${hasCriticalFlag}`);
     } catch (error) {
       console.error(`Failed to process report ID ${report._id}:`, error);
       report.analysisStatus = 'failed';

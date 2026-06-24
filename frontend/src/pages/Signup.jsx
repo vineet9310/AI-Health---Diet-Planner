@@ -40,101 +40,107 @@ const Signup = ({ onLogin }) => {
   };
 
   return (
-    <div className="flex justify-center items-center py-8">
-      <div className="glass-panel w-full max-w-md p-8 flex flex-col gap-6">
+    <div className="flex justify-center items-center py-4">
+      <div className="glass-panel w-full max-w-2xl p-6 flex flex-col gap-5">
         <div className="text-center">
-          <h2 className="text-3xl font-bold font-heading mb-1">Create Account</h2>
-          <p className="text-slate-400 text-sm">Join VitalPlan to receive personalized health plans.</p>
+          <h2 className="text-2xl font-bold font-heading mb-1 text-slate-900">Create Account</h2>
+          <p className="text-slate-500 text-xs">Join VitalPlan to receive personalized health plans.</p>
         </div>
 
         {error && (
-          <div className="p-3 rounded-lg border border-rose-500/20 bg-rose-500/5 text-rose-300 text-sm flex gap-2 items-center">
-            <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+          <div className="p-3 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-xs flex gap-2 items-center">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Full Name</label>
-            <input 
-              type="text"
-              required
-              className="glass-input"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Left Column */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Full Name</label>
+              <input 
+                type="text"
+                required
+                className="glass-input py-2 px-3 text-xs"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Email Address</label>
+              <input 
+                type="email"
+                required
+                className="glass-input py-2 px-3 text-xs"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Join As Role</label>
+              <select 
+                className="glass-input py-2 px-3 text-xs cursor-pointer"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="user">Regular User (Patient)</option>
+                <option value="nutritionist">Nutritionist / Doctor</option>
+                <option value="admin">System Admin</option>
+              </select>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
-            <input 
-              type="email"
-              required
-              className="glass-input"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+          {/* Right Column */}
+          <div className="flex flex-col gap-3 justify-between">
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Password</label>
+              <input 
+                type="password"
+                required
+                className="glass-input py-2 px-3 text-xs"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Join As Role (For Testing)</label>
-            <select 
-              className="glass-input cursor-pointer"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Confirm Password</label>
+              <input 
+                type="password"
+                required
+                className="glass-input py-2 px-3 text-xs"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="btn-primary w-full py-2 text-xs font-semibold mt-1"
             >
-              <option value="user" className="bg-slate-900 text-white">Regular User (Patient)</option>
-              <option value="nutritionist" className="bg-slate-900 text-white">Nutritionist / Doctor</option>
-              <option value="admin" className="bg-slate-900 text-white">System Admin</option>
-            </select>
+              {loading ? (
+                <div className="animate-spin rounded-full h-4.5 w-4.5 border-b-2 border-white"></div>
+              ) : (
+                <>
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Sign Up
+                </>
+              )}
+            </button>
           </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
-            <input 
-              type="password"
-              required
-              className="glass-input"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Confirm Password</label>
-            <input 
-              type="password"
-              required
-              className="glass-input"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </div>
-
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="btn-primary w-full mt-2"
-          >
-            {loading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            ) : (
-              <>
-                <UserPlus className="w-4 h-4" />
-                Sign Up
-              </>
-            )}
-          </button>
         </form>
 
-        <div className="text-center text-sm text-slate-400 border-t border-slate-900 pt-4">
+        <div className="text-center text-xs text-slate-500 border-t border-slate-100 pt-3">
           Already have an account?{' '}
-          <Link to="/login" className="text-emerald-400 font-semibold hover:underline">
+          <Link to="/login" className="text-emerald-700 font-bold hover:underline">
             Sign In Here
           </Link>
         </div>

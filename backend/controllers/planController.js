@@ -76,8 +76,15 @@ const generatePlan = async (req, res) => {
       });
     }
 
+    const reportDetails = latestReport ? {
+      riskScore: latestReport.riskScore,
+      riskCategory: latestReport.riskCategory,
+      doctorSummary: latestReport.doctorSummary,
+      healthRecommendations: latestReport.healthRecommendations
+    } : null;
+
     // 4. Generate plan using AI Service
-    const aiPlanResult = await generateAIPlan(profile, flaggedBiomarkers);
+    const aiPlanResult = await generateAIPlan(profile, flaggedBiomarkers, reportDetails);
 
     // 5. Determine plan status based on conditions and biomarker flags
     let planStatus = 'ai_generated';

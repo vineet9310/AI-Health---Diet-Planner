@@ -5,7 +5,7 @@ import Disclaimer from '../components/Disclaimer';
 
 const Landing = ({ user }) => {
   return (
-    <div className="flex flex-col gap-16 py-8 items-center text-center">
+    <div className="flex flex-col gap-8  items-center text-center">
       {/* Hero Section */}
       <section className="flex flex-col items-center gap-6 max-w-3xl mt-12 animate-fade-in">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-2">

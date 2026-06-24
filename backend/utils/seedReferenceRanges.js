@@ -102,6 +102,36 @@ const sampleRanges = [
     criticalHigh: 3.5,
     category: "kidney panel",
     aliases: ["Creatinine", "Creat", "Serum Creatinine"]
+  },
+  {
+    testName: "Total Bilirubin",
+    unit: "mg/dL",
+    minNormal: 0.1,
+    maxNormal: 1.2,
+    criticalLow: 0.05,
+    criticalHigh: 3.0,
+    category: "liver panel",
+    aliases: ["Bilirubin - Total", "Bilirubin Total", "Total Bilirubin", "TBIL"]
+  },
+  {
+    testName: "Direct Bilirubin",
+    unit: "mg/dL",
+    minNormal: 0.0,
+    maxNormal: 0.3,
+    criticalLow: 0.0,
+    criticalHigh: 1.5,
+    category: "liver panel",
+    aliases: ["Bilirubin - Direct", "Bilirubin -DIRECT", "Bilirubin Direct", "Direct Bilirubin", "DBIL"]
+  },
+  {
+    testName: "Indirect Bilirubin",
+    unit: "mg/dL",
+    minNormal: 0.2,
+    maxNormal: 0.8,
+    criticalLow: 0.05,
+    criticalHigh: 2.0,
+    category: "liver panel",
+    aliases: ["Bilirubin (Indirect)", "Indirect Bilirubin", "IBIL"]
   }
 ];
 

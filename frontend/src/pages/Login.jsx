@@ -32,39 +32,39 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div className="flex justify-center items-center py-12">
-      <div className="glass-panel w-full max-w-md p-8 flex flex-col gap-6">
+    <div className="flex justify-center items-center py-4">
+      <div className="glass-panel w-full max-w-md p-6 flex flex-col gap-5">
         <div className="text-center">
-          <h2 className="text-3xl font-bold font-heading mb-1">Welcome Back</h2>
-          <p className="text-slate-400 text-sm">Sign in to track progress and view your custom health plans.</p>
+          <h2 className="text-2xl font-bold font-heading mb-1 text-slate-900">Welcome Back</h2>
+          <p className="text-slate-500 text-xs">Sign in to track progress and view your custom health plans.</p>
         </div>
 
         {error && (
-          <div className="p-3 rounded-lg border border-rose-500/20 bg-rose-500/5 text-rose-300 text-sm flex gap-2 items-center">
-            <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+          <div className="p-3 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-xs flex gap-2 items-center">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Email Address</label>
             <input 
               type="email"
               required
-              className="glass-input"
+              className="glass-input py-2 px-3 text-xs"
               placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Password</label>
             <input 
               type="password"
               required
-              className="glass-input"
+              className="glass-input py-2 px-3 text-xs"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -74,22 +74,22 @@ const Login = ({ onLogin }) => {
           <button 
             type="submit" 
             disabled={loading}
-            className="btn-primary w-full mt-2"
+            className="btn-primary w-full py-2 text-xs font-semibold mt-1"
           >
             {loading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-4.5 w-4.5 border-b-2 border-white"></div>
             ) : (
               <>
-                <LogIn className="w-4 h-4" />
+                <LogIn className="w-3.5 h-3.5" />
                 Sign In
               </>
             )}
           </button>
         </form>
 
-        <div className="text-center text-sm text-slate-400 border-t border-slate-900 pt-4">
+        <div className="text-center text-xs text-slate-500 border-t border-slate-100 pt-3">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-emerald-400 font-semibold hover:underline">
+          <Link to="/signup" className="text-emerald-700 font-bold hover:underline">
             Register Here
           </Link>
         </div>

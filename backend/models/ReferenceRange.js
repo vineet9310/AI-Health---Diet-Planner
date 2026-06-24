@@ -7,6 +7,8 @@ const ReferenceRangeSchema = new mongoose.Schema({
   maxNormal: { type: Number, required: true },
   criticalLow: { type: Number },                       // below this = urgent attention needed
   criticalHigh: { type: Number },                      // above this = urgent attention needed
+  borderlineLowThreshold: { type: Number },            // factor to multiply minNormal by for borderline low (default 0.8)
+  borderlineHighThreshold: { type: Number },           // factor to multiply maxNormal by for borderline high (default 1.2)
   category: { type: String },                          // e.g. "blood sugar", "lipid profile", "thyroid"
   aliases: [{ type: String }]                          // alternate names OCR might extract, e.g. ["FBS", "Fasting Blood Sugar", "Glucose"]
 });
