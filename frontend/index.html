@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="VitalPlan - AI-powered medical report analysis and personalized diet & exercise planner. Extract biomarkers and generate custom clinical plans safely." />
+    <meta name="keywords" content="health planner, AI diet, medical report OCR, biomarker analysis, exercise planner, workout planner, MERN, nutrition" />
+    <title>VitalPlan — AI Health & Diet Planner</title>
+    <!-- Tailwind CSS Engine -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: '#0f766e',
+                glow: 'rgba(15, 118, 110, 0.1)',
+              },
+              secondary: {
+                DEFAULT: '#0891b2',
+                glow: 'rgba(8, 145, 178, 0.1)',
+              },
+              normal: '#10b981',
+              borderline: '#d97706',
+              'high-low': '#dc2626',
+              critical: '#991b1b',
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
