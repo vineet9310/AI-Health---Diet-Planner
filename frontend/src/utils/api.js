@@ -1,4 +1,9 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL =
+  import.meta.env.VITE_BACKEND_URL ||
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:5000/api';
+
+const API_BASE_URL = API_URL.endsWith('/api') ? API_URL : `${API_URL}/api`;
 
 /**
  * Custom fetch API wrapper.
@@ -26,9 +31,11 @@ const api = async (endpoint, options = {}) => {
     headers,
   };
 
-  const response = await fetch(`${API_URL}${endpoint}`, config).catch(err => {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, config).catch(err => {
     console.error('Fetch network error:', err);
-    throw new Error('Server connection failed. Please ensure the backend server is running on http://localhost:5000.');
+    throw new Error(
+      'Server connection failed. Please ensure the backend server is running on http://localhost:5000 or VITE_BACKEND_URL is set.'
+    );
   });
 
   // Handle Unauthorized (expired token)
@@ -51,4 +58,4 @@ const api = async (endpoint, options = {}) => {
 };
 
 export default api;
-export { API_URL };
+export { API_URL, API_BASE_URL };
