@@ -23,7 +23,26 @@ const Login = ({ onLogin }) => {
 
       onLogin(data, data.token);
       window.dispatchEvent(new Event('auth-change'));
-      navigate('/dashboard');
+      
+      try {
+        const status = await api('/profile/status');
+        if (status.isComplete) {
+          if (localStorage.getItem('generatePlanAfterLogin') === 'true') {
+            localStorage.removeItem('generatePlanAfterLogin');
+            try {
+              await api('/plans/generate', { method: 'POST' });
+            } catch (genErr) {
+              console.error('Auto-generation failed after login:', genErr);
+            }
+          }
+          navigate('/dashboard');
+        } else {
+          navigate('/complete-profile');
+        }
+      } catch (profileErr) {
+        console.error('Failed to retrieve profile status:', profileErr);
+        navigate('/complete-profile');
+      }
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {

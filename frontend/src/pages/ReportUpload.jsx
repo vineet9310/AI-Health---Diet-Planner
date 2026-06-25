@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { UploadCloud, FileText, CheckCircle, Clock, XCircle, Trash2, Eye, AlertCircle } from 'lucide-react';
 import api, { API_URL } from '../utils/api';
 
-const ReportUpload = () => {
+const ReportUpload = ({ user }) => {
   const [file, setFile] = useState(null);
   const [reports, setReports] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [dragActive, setDragActive] = useState(false);
+  const navigate = useNavigate();
 
   const fetchReports = async () => {
+    if (!user) return;
     try {
       const data = await api('/reports');
       setReports(data);
@@ -20,7 +22,13 @@ const ReportUpload = () => {
   };
 
   useEffect(() => {
-    fetchReports();
+    if (user) {
+      fetchReports();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
     // Poll for status updates every 5 seconds if there are reports in 'pending' status
     const interval = setInterval(() => {
       const hasPending = reports.some(r => r.analysisStatus === 'pending');
@@ -30,7 +38,7 @@ const ReportUpload = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [reports]);
+  }, [reports, user]);
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -87,12 +95,17 @@ const ReportUpload = () => {
     formData.append('file', file);
 
     try {
-      await api('/reports/upload', {
+      const response = await api('/reports/upload', {
         method: 'POST',
         body: formData
       });
       setFile(null);
-      fetchReports();
+      if (response.report && response.report._id) {
+        localStorage.setItem('lastUploadedReportId', response.report._id);
+        navigate(`/reports/${response.report._id}`);
+      } else {
+        fetchReports();
+      }
     } catch (err) {
       setError(err.message || 'File upload failed. Please try again.');
     } finally {
@@ -137,14 +150,14 @@ const ReportUpload = () => {
         icon: AlertCircle, 
         text: 'Critical Flag', 
         badgeClass: 'badge-critical',
-        bg: 'border-rose-500/40 bg-rose-500/10 text-rose-300' 
+        bg: 'border-rose-500/40 bg-rose-500/10 text-rose-800' 
       };
     }
     return { 
       icon: CheckCircle, 
       text: 'Analyzed', 
       badgeClass: 'badge-normal',
-      bg: 'border-emerald-500/20 bg-emerald-500/5 text-emerald-400' 
+      bg: 'border-emerald-500/20 bg-emerald-500/5 text-emerald-700' 
     };
   };
 
@@ -165,8 +178,8 @@ const ReportUpload = () => {
             <h3 className="text-lg font-bold font-heading">Upload New Report</h3>
             
             {error && (
-              <div className="p-3 rounded-lg border border-rose-500/20 bg-rose-500/5 text-rose-300 text-sm flex gap-2 items-center">
-                <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+              <div className="p-3 rounded-lg border border-rose-500/20 bg-rose-500/5 text-rose-800 text-sm flex gap-2 items-center">
+                <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
@@ -176,7 +189,7 @@ const ReportUpload = () => {
                 className={`border-2 border-dashed rounded-xl p-8 text-center flex flex-col items-center gap-3 transition-all cursor-pointer ${
                   dragActive 
                     ? 'border-emerald-500 bg-emerald-500/5' 
-                    : 'border-slate-800 hover:border-slate-700 bg-slate-900/20'
+                    : 'border-slate-300 hover:border-slate-400 bg-slate-50'
                 }`}
                 onDragEnter={handleDrag}
                 onDragOver={handleDrag}
@@ -195,7 +208,7 @@ const ReportUpload = () => {
                 <UploadCloud className={`w-10 h-10 ${dragActive ? 'text-emerald-400' : 'text-slate-500'}`} />
                 
                 <div>
-                  <p className="text-sm font-semibold text-slate-200">
+                  <p className="text-sm font-semibold text-slate-800">
                     {file ? file.name : 'Drag & drop your report here'}
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
@@ -226,10 +239,21 @@ const ReportUpload = () => {
           <div className="glass-panel p-6 flex flex-col gap-4">
             <h3 className="text-lg font-bold font-heading">Upload History</h3>
 
-            {reports.length === 0 ? (
-              <div className="text-center py-12 border border-slate-900/50 rounded-xl bg-slate-900/5">
-                <FileText className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                <p className="text-slate-400 text-sm">No reports uploaded yet.</p>
+            {!user ? (
+              <div className="text-center py-12 border border-slate-200 rounded-xl bg-slate-50/50 flex flex-col items-center gap-3">
+                <AlertCircle className="w-12 h-12 text-slate-500" />
+                <p className="text-slate-700 text-sm font-semibold">Track Your Health Over Time</p>
+                <p className="text-slate-500 text-xs max-w-sm">
+                  Create a profile to save your uploaded reports, view historical trends, and get a complete clinical analysis.
+                </p>
+                <Link to="/signup" className="btn-primary mt-2 py-1.5 px-4 text-xs">
+                  Create Account
+                </Link>
+              </div>
+            ) : reports.length === 0 ? (
+              <div className="text-center py-12 border border-slate-200 rounded-xl bg-slate-50/50">
+                <FileText className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+                <p className="text-slate-500 text-sm">No reports uploaded yet.</p>
               </div>
             ) : (
               <div className="table-container">
@@ -247,14 +271,14 @@ const ReportUpload = () => {
                       const status = getStatusIconAndClass(report.analysisStatus, report.hasCriticalFlag);
                       return (
                         <tr key={report._id}>
-                          <td className="text-slate-300">
+                          <td className="text-slate-500">
                             {new Date(report.uploadedAt).toLocaleDateString(undefined, {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric'
                             })}
                           </td>
-                          <td className="font-semibold text-slate-200">{report.fileName}</td>
+                          <td className="font-semibold text-slate-800">{report.fileName}</td>
                           <td>
                             <span className={`badge ${status.badgeClass}`}>
                               <status.icon className="w-3 h-3" />

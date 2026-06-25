@@ -6,29 +6,81 @@ const { calculateNutrition } = require('../services/calorieService');
 // @access  Private
 const saveProfile = async (req, res) => {
   const {
+    fullName,
     age,
     gender,
+    country,
+    state,
+    city,
     heightCm,
     weightKg,
+    bodyFatPercent,
+    waistCircumference,
     activityLevel,
+    sleepDuration,
+    stressLevel,
+    occupation,
     goal,
+    goals,
+    cuisinePreference,
+    dietaryPreference,
     allergies,
+    religiousRestrictions,
+    foodsToAvoid,
+    foodsPreferred,
     existingConditions,
-    dietaryPreference
+    currentMedications,
+    previousSurgeries,
+    familyHistory,
+    smoking,
+    alcohol,
+    exerciseExperience
   } = req.body;
 
+  const toArray = (val) => {
+    if (Array.isArray(val)) return val;
+    if (!val) return [];
+    return val.split(',').map(s => s.trim()).filter(Boolean);
+  };
+
   try {
+    // Sync User name if full name is provided
+    const User = require('../models/User');
+    if (fullName && fullName.trim()) {
+      await User.findByIdAndUpdate(req.user._id, { name: fullName.trim() });
+    }
+
     // 1. Prepare raw profile object for BMR/TDEE calculation
     const tempProfile = {
+      fullName,
       age: parseInt(age),
       gender,
+      country,
+      state,
+      city,
       heightCm: parseFloat(heightCm),
       weightKg: parseFloat(weightKg),
+      bodyFatPercent: bodyFatPercent ? parseFloat(bodyFatPercent) : undefined,
+      waistCircumference: waistCircumference ? parseFloat(waistCircumference) : undefined,
       activityLevel,
+      sleepDuration: sleepDuration ? parseInt(sleepDuration) : undefined,
+      stressLevel,
+      occupation,
       goal,
-      allergies: Array.isArray(allergies) ? allergies : (allergies ? [allergies] : []),
-      existingConditions: Array.isArray(existingConditions) ? existingConditions : (existingConditions ? [existingConditions] : []),
-      dietaryPreference
+      goals: toArray(goals),
+      cuisinePreference,
+      dietaryPreference,
+      allergies: toArray(allergies),
+      religiousRestrictions: toArray(religiousRestrictions),
+      foodsToAvoid: toArray(foodsToAvoid),
+      foodsPreferred: toArray(foodsPreferred),
+      existingConditions: toArray(existingConditions),
+      currentMedications: toArray(currentMedications),
+      previousSurgeries: toArray(previousSurgeries),
+      familyHistory: toArray(familyHistory),
+      smoking,
+      alcohol,
+      exerciseExperience
     };
 
     // 2. Perform calculations
@@ -80,7 +132,42 @@ const getProfile = async (req, res) => {
   }
 };
 
+const checkProfileStatus = async (req, res) => {
+  try {
+    const profile = await HealthProfile.findOne({ user: req.user._id });
+    if (!profile) {
+      return res.json({ exists: false, isComplete: false, missingFields: [] });
+    }
+    
+    // Check required fields
+    const required = [
+      'fullName', 'age', 'gender', 'country', 'state', 'city',
+      'heightCm', 'weightKg', 'activityLevel', 'occupation',
+      'sleepDuration', 'stressLevel', 'goals', 'dietaryPreference',
+      'cuisinePreference', 'smoking', 'alcohol', 'exerciseExperience',
+      'allergies', 'existingConditions', 'currentMedications'
+    ];
+    let isComplete = true;
+    const missingFields = [];
+    for (const field of required) {
+      const val = profile[field];
+      if (val === undefined || val === null || val === '') {
+        isComplete = false;
+        missingFields.push(field);
+      } else if (Array.isArray(val) && val.length === 0 && field === 'goals') {
+        isComplete = false;
+        missingFields.push(field);
+      }
+    }
+    res.json({ exists: true, isComplete, missingFields, profile });
+  } catch (error) {
+    console.error('Error checking profile status:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   saveProfile,
-  getProfile
+  getProfile,
+  checkProfileStatus
 };

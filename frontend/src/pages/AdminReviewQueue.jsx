@@ -155,8 +155,8 @@ const AdminReviewQueue = () => {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-500/5 text-rose-300 text-sm flex gap-2 items-center">
-          <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+        <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-500/5 text-rose-800 text-sm flex gap-2 items-center">
+          <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
           <span>{error}</span>
         </div>
       )}

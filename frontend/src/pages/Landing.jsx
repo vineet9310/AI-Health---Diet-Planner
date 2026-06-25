@@ -28,7 +28,10 @@ const Landing = ({ user }) => {
               <Link to="/signup" className="btn-primary text-base px-8 py-3.5 w-full sm:w-auto">
                 Get Started Free
               </Link>
-              <Link to="/login" className="btn-secondary text-base px-8 py-3.5 w-full sm:w-auto">
+              <Link to="/reports" className="btn-secondary text-base px-8 py-3.5 w-full sm:w-auto">
+                Upload Report (Guest)
+              </Link>
+              <Link to="/login" className="text-slate-600 hover:text-slate-900 text-sm font-bold self-center py-2 hover:underline">
                 Sign In
               </Link>
             </>

@@ -29,10 +29,10 @@ const Navbar = ({ user, onLogout }) => {
   const isAdmin = user && (user.role === 'admin' || user.role === 'nutritionist');
 
   const navLinks = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Reports', path: '/reports', icon: FileText },
-    { name: 'Progress Tracker', path: '/progress', icon: TrendingUp },
-    { name: 'Profile Setup', path: '/profile', icon: UserIcon },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, authRequired: true },
+    { name: 'Upload Report', path: '/reports', icon: FileText, authRequired: false },
+    { name: 'Progress Tracker', path: '/progress', icon: TrendingUp, authRequired: true },
+    { name: 'Profile Setup', path: '/profile', icon: UserIcon, authRequired: true },
   ];
 
   const adminLinks = [
@@ -55,20 +55,23 @@ const Navbar = ({ user, onLogout }) => {
 
       {/* Desktop Menu */}
       <div className="hidden lg:flex items-center gap-6">
-        {user && navLinks.map((link) => (
-          <Link
-            key={link.path}
-            to={link.path}
-            className={`flex items-center gap-2 text-sm font-semibold transition-all ${
-              isActive(link.path) 
-                ? 'text-emerald-700 font-extrabold' 
-                : 'text-slate-600 hover:text-slate-950'
-            }`}
-          >
-            <link.icon className="w-4 h-4" />
-            {link.name}
-          </Link>
-        ))}
+        {navLinks.map((link) => {
+          if (link.authRequired && !user) return null;
+          return (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`flex items-center gap-2 text-sm font-semibold transition-all ${
+                isActive(link.path) 
+                  ? 'text-emerald-700 font-extrabold' 
+                  : 'text-slate-600 hover:text-slate-950'
+              }`}
+            >
+              <link.icon className="w-4 h-4" />
+              {link.name}
+            </Link>
+          );
+        })}
 
         {user && isAdmin && (
           <div className="h-4 w-px bg-slate-200" />
@@ -133,19 +136,22 @@ const Navbar = ({ user, onLogout }) => {
             </div>
           )}
 
-          {user && navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-3 text-sm font-medium ${
-                isActive(link.path) ? 'text-emerald-700 font-bold' : 'text-slate-600'
-              }`}
-            >
-              <link.icon className="w-5 h-5" />
-              {link.name}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            if (link.authRequired && !user) return null;
+            return (
+              <Link
+                key={link.path}
+                to={link.path}
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 text-sm font-medium ${
+                  isActive(link.path) ? 'text-emerald-700 font-bold' : 'text-slate-600'
+                }`}
+              >
+                <link.icon className="w-5 h-5" />
+                {link.name}
+              </Link>
+            );
+          })}
 
           {user && isAdmin && (
             <>

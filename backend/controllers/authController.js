@@ -14,9 +14,9 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Set first registered user as Admin for easier setup/testing
+    // Respect selected role, or default to Admin for the first registered user if no role is provided
     const userCount = await User.countDocuments({});
-    const finalRole = userCount === 0 ? 'admin' : (role || 'user');
+    const finalRole = role || (userCount === 0 ? 'admin' : 'user');
 
     const user = await User.create({
       name,

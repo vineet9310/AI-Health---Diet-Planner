@@ -25,8 +25,8 @@
 
   /* Text Colors */
   --text-main: #0f172a; /* Slate 900 */
-  --text-muted: #475569; /* Slate 600 */
-  --text-dim: #94a3b8; /* Slate 400 */
+  --text-muted: #334155; /* Slate 700 (darker for high readability) */
+  --text-dim: #475569; /* Slate 600 (darker for high readability) */
 
   /* Transitions */
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -276,4 +276,54 @@ tr:hover td {
 nav.glass-panel {
   background: rgba(255, 255, 255, 0.85) !important;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Accessibility & High Readability Text Enhancements */
+/* Overrides light tailwind text classes to meet WCAG contrast guidelines */
+p.text-slate-400, span.text-slate-400, label.text-slate-400, div.text-slate-400, th.text-slate-400 {
+  color: #475569 !important; /* Promotes Slate-400 to Slate-600 */
+}
+p.text-slate-500, span.text-slate-500, label.text-slate-500, div.text-slate-500, th.text-slate-500, svg.text-slate-500 {
+  color: #334155 !important; /* Promotes Slate-500 to Slate-700 */
+}
+p.text-slate-600, span.text-slate-600, label.text-slate-600, div.text-slate-600, th.text-slate-600, a.text-slate-600 {
+  color: #1e293b !important; /* Promotes Slate-600 to Slate-800 */
+}
+p.text-slate-300, span.text-slate-300, label.text-slate-300, div.text-slate-300 {
+  color: #475569 !important; /* Promotes Slate-300 to Slate-600 */
+}
+p.text-slate-200, span.text-slate-200, label.text-slate-200, div.text-slate-200 {
+  color: #334155 !important; /* Promotes Slate-200 to Slate-700 */
+}
+
+/* Scaled up Font Sizing for Dashboard Readability - Balanced values */
+.dashboard-container .text-\[9px\] {
+  font-size: 0.65rem !important; /* 10.4px */
+}
+.dashboard-container .text-\[10px\] {
+  font-size: 0.725rem !important; /* 11.6px */
+}
+.dashboard-container .text-\[11px\] {
+  font-size: 0.775rem !important; /* 12.4px */
+}
+.dashboard-container .text-xs {
+  font-size: 0.825rem !important; /* 13.2px */
+}
+.dashboard-container .text-sm {
+  font-size: 0.95rem !important; /* 15.2px */
+}
+.dashboard-container .text-base {
+  font-size: 1.05rem !important; /* 16.8px */
+}
+.dashboard-container .text-lg {
+  font-size: 1.2rem !important; /* 19.2px */
+}
+.dashboard-container .text-xl {
+  font-size: 1.4rem !important; /* 22.4px */
+}
+.dashboard-container .text-2xl {
+  font-size: 1.7rem !important; /* 27.2px */
+}
+.dashboard-container .text-3xl {
+  font-size: 2.1rem !important; /* 33.6px */
 }

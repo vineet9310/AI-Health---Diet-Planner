@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const MedicalReportSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   fileUrl: { type: String, required: true },
   fileName: { type: String },
   uploadedAt: { type: Date, default: Date.now },

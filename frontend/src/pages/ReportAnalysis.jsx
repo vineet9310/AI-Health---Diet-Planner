@@ -4,7 +4,7 @@ import { ShieldAlert, CheckCircle, ChevronLeft, ArrowRight, Activity, AlertCircl
 import api from '../utils/api';
 import Disclaimer from '../components/Disclaimer';
 
-const ReportAnalysis = () => {
+const ReportAnalysis = ({ user }) => {
   const { id } = useParams();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,17 +13,26 @@ const ReportAnalysis = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let interval;
     const fetchReport = async () => {
       try {
         const data = await api(`/reports/${id}`);
         setReport(data);
+        if (data.analysisStatus !== 'pending') {
+          setLoading(false);
+          clearInterval(interval);
+        }
       } catch (err) {
         setError(err.message || 'Failed to retrieve report data.');
-      } finally {
         setLoading(false);
+        clearInterval(interval);
       }
     };
+
     fetchReport();
+    interval = setInterval(fetchReport, 3000);
+
+    return () => clearInterval(interval);
   }, [id]);
 
   const handleGeneratePlan = async () => {
@@ -31,6 +40,13 @@ const ReportAnalysis = () => {
     setGenerating(true);
 
     try {
+      const status = await api('/profile/status');
+      if (!status.isComplete) {
+        alert('Please complete your health profile first before generating a health plan.');
+        navigate('/complete-profile');
+        return;
+      }
+
       const response = await api('/plans/generate', {
         method: 'POST'
       });
@@ -52,11 +68,23 @@ const ReportAnalysis = () => {
     }
   };
 
-  if (loading) {
+  if (loading && !report) {
     return (
       <div className="flex flex-col items-center gap-3 mt-24">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div>
         <p className="text-slate-400 text-sm">Parsing biometric indicators...</p>
+      </div>
+    );
+  }
+
+  if (loading && report && report.analysisStatus === 'pending') {
+    return (
+      <div className="flex flex-col items-center gap-3 mt-24">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div>
+        <p className="text-slate-700 font-semibold font-heading">Analyzing Laboratory Biomarkers...</p>
+        <p className="text-slate-500 text-xs max-w-sm text-center">
+          Our clinical parser is reading your report and extracting biological indicators. This will take a moment.
+        </p>
       </div>
     );
   }
@@ -333,37 +361,58 @@ const ReportAnalysis = () => {
           )}
 
           {/* Call to action generation bar */}
-          <div className="glass-panel p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="text-center sm:text-left">
-              <h4 className="font-bold font-heading text-sm text-slate-900">Next Step: Calculate Custom Regimen</h4>
-              <p className="text-xs text-slate-500 mt-0.5">We'll cross-reference these biomarker values with your health profile to yield a safe plan.</p>
+          {!user ? (
+            <div className="glass-panel p-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-2 border-dashed border-emerald-500/30 bg-emerald-50/5">
+              <div className="text-center sm:text-left max-w-lg">
+                <h4 className="font-bold font-heading text-sm text-slate-900">Login to generate your personalized AI Health Dashboard.</h4>
+                <p className="text-xs text-slate-500 mt-1">
+                  Please sign in or register to complete your health profile and generate a safe, personalized diet and workout plan.
+                </p>
+              </div>
+              <button 
+                onClick={() => {
+                  localStorage.setItem('generatePlanAfterLogin', 'true');
+                  navigate('/login');
+                }}
+                className="btn-primary min-w-[200px] text-center text-xs py-2.5 px-4 shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2"
+              >
+                <span>Generate Health Plan</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
+          ) : (
+            <div className="glass-panel p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="text-center sm:text-left">
+                <h4 className="font-bold font-heading text-sm text-slate-900">Next Step: Calculate Custom Regimen</h4>
+                <p className="text-xs text-slate-500 mt-0.5">We'll cross-reference these biomarker values with your health profile to yield a safe plan.</p>
+              </div>
 
-            {hasCriticalFlag ? (
-              <button 
-                disabled
-                className="btn-primary bg-rose-900/50 border border-rose-900/80 cursor-not-allowed opacity-50 flex gap-2 text-xs py-2 px-4"
-              >
-                <ShieldAlert className="w-4 h-4" />
-                Generation Blocked
-              </button>
-            ) : (
-              <button 
-                onClick={handleGeneratePlan}
-                disabled={generating}
-                className="btn-primary min-w-[180px] text-xs py-2.5 px-4"
-              >
-                {generating ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    Generate Health Plan
-                    <ArrowRight className="w-4 h-4" />
-                  </span>
-                )}
-              </button>
-            )}
-          </div>
+              {hasCriticalFlag ? (
+                <button 
+                  disabled
+                  className="btn-primary bg-rose-900/50 border border-rose-900/80 cursor-not-allowed opacity-50 flex gap-2 text-xs py-2 px-4"
+                >
+                  <ShieldAlert className="w-4 h-4" />
+                  Generation Blocked
+                </button>
+              ) : (
+                <button 
+                  onClick={handleGeneratePlan}
+                  disabled={generating}
+                  className="btn-primary min-w-[180px] text-xs py-2.5 px-4"
+                >
+                  {generating ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      Generate Health Plan
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
 
         </div>
 

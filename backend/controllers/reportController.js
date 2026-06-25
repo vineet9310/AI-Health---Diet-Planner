@@ -17,7 +17,7 @@ const uploadReport = async (req, res) => {
   
   // Create report entry in 'pending' status
   const report = new MedicalReport({
-    user: req.user._id,
+    user: req.user ? req.user._id : undefined,
     fileUrl,
     fileName: req.file.originalname,
     analysisStatus: 'pending'
@@ -93,9 +93,11 @@ const getReportById = async (req, res) => {
       return res.status(404).json({ message: 'Medical report not found' });
     }
 
-    // Verify ownership or admin privileges
-    if (report.user.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'nutritionist') {
-      return res.status(403).json({ message: 'Not authorized to view this report' });
+    // Verify ownership or admin privileges if report has an associated user
+    if (report.user) {
+      if (!req.user || (report.user.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'nutritionist')) {
+        return res.status(403).json({ message: 'Not authorized to view this report' });
+      }
     }
 
     res.json(report);
@@ -137,9 +139,35 @@ const deleteReport = async (req, res) => {
   }
 };
 
+// @desc    Claim guest report
+// @route   PUT /api/reports/claim
+// @access  Private
+const claimReport = async (req, res) => {
+  const { reportId } = req.body;
+  try {
+    const report = await MedicalReport.findById(reportId);
+    if (!report) {
+      return res.status(404).json({ message: 'Medical report not found' });
+    }
+
+    if (report.user) {
+      return res.status(400).json({ message: 'Report already owned by a user' });
+    }
+
+    report.user = req.user._id;
+    await report.save();
+
+    res.json({ message: 'Report successfully claimed', report });
+  } catch (error) {
+    console.error('Error claiming report:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   uploadReport,
   getReports,
   getReportById,
-  deleteReport
+  deleteReport,
+  claimReport
 };

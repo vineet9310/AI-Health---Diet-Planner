@@ -11,7 +11,7 @@ import {
   Legend 
 } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
-import { Scale, CheckSquare, Calendar, Award, AlertCircle, Sparkles } from 'lucide-react';
+import { Scale, CheckSquare, Calendar, Award, AlertCircle, Sparkles, TrendingUp } from 'lucide-react';
 import api from '../utils/api';
 
 // Register Chart.js components
@@ -155,15 +155,15 @@ const ProgressTracker = () => {
             </h3>
 
             {error && (
-              <div className="p-3 rounded-lg border border-rose-500/20 bg-rose-500/5 text-rose-300 text-sm flex gap-2 items-center">
-                <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+              <div className="p-3 rounded-lg border border-rose-500/20 bg-rose-500/5 text-rose-800 text-sm flex gap-2 items-center">
+                <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             {success && (
-              <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 text-emerald-300 text-sm flex gap-2 items-center">
-                <Award className="w-5 h-5 text-emerald-500 shrink-0" />
+              <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 text-emerald-800 text-sm flex gap-2 items-center">
+                <Award className="w-5 h-5 text-emerald-600 shrink-0" />
                 <span>{success}</span>
               </div>
             )}
@@ -212,15 +212,15 @@ const ProgressTracker = () => {
                 </select>
               </div>
 
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/30 cursor-pointer hover:border-slate-700 transition-all">
+              <label className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer hover:border-slate-300 transition-all">
                 <input 
                   type="checkbox" 
                   className="accent-emerald-500 h-4 w-4 rounded" 
                   checked={workoutCompleted}
                   onChange={(e) => setWorkoutCompleted(e.target.checked)}
                 />
-                <div className="flex items-center gap-1.5 text-sm font-medium text-slate-200">
-                  <CheckSquare className="w-4 h-4 text-emerald-400" />
+                <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                  <CheckSquare className="w-4 h-4 text-emerald-600" />
                   <span>Workout Completed</span>
                 </div>
               </label>

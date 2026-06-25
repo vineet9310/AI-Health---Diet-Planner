@@ -100,10 +100,11 @@ function App() {
             element={user ? <Navigate to="/dashboard" replace /> : <Signup onLogin={handleLogin} />} 
           />
 
-          {/* Protected Client Routes */}
+          {/* Client Routes */}
           <Route path="/profile" element={<PrivateRoute><ProfileSetup /></PrivateRoute>} />
-          <Route path="/reports" element={<PrivateRoute><ReportUpload /></PrivateRoute>} />
-          <Route path="/reports/:id" element={<PrivateRoute><ReportAnalysis /></PrivateRoute>} />
+          <Route path="/complete-profile" element={<PrivateRoute><ProfileSetup /></PrivateRoute>} />
+          <Route path="/reports" element={<ReportUpload user={user} />} />
+          <Route path="/reports/:id" element={<ReportAnalysis user={user} />} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard user={user} /></PrivateRoute>} />
           <Route path="/progress" element={<PrivateRoute><ProgressTracker /></PrivateRoute>} />
 

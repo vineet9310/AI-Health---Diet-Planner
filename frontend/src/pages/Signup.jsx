@@ -31,7 +31,7 @@ const Signup = ({ onLogin }) => {
 
       onLogin(data, data.token);
       window.dispatchEvent(new Event('auth-change'));
-      navigate('/profile'); // Redirect straight to health profile setup on signup!
+      navigate('/complete-profile'); // Redirect straight to health profile setup on signup!
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
