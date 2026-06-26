@@ -38,7 +38,8 @@ app.use((req, res, next) => {
 });
 
 // Serve uploaded medical reports statically
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const staticUploadsDir = process.env.VERCEL ? '/tmp' : path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(staticUploadsDir));
 
 // Route registrations
 app.use('/api/auth', require('./routes/authRoutes'));

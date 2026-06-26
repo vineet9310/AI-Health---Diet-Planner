@@ -29,7 +29,11 @@ const extractTextFromFile = async (filePath, mimeType) => {
       filePath.toLowerCase().endsWith('.webp')
     ) {
       console.log('Processing Image file via Tesseract.js...');
-      const result = await Tesseract.recognize(filePath, 'eng');
+      const tesseractOptions = {};
+      if (process.env.VERCEL) {
+        tesseractOptions.cachePath = '/tmp';
+      }
+      const result = await Tesseract.recognize(filePath, 'eng', tesseractOptions);
       return result.data.text || '';
     } else {
       throw new Error(`Unsupported file format: ${mimeType}`);

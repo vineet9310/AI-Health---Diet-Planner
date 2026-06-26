@@ -25,14 +25,7 @@ const uploadReport = async (req, res) => {
 
   await report.save();
 
-  // Run OCR processing in background (asynchronously to avoid request timeout)
-  // But for simple local testing, we can do it asynchronously and let client poll, 
-  // or await it if small. Let's start the background task and return immediately 
-  // with a 'pending' report status, so the UI can show a loader and poll. 
-  // This is highly professional!
-  
-  // Start background task
-  setTimeout(async () => {
+  const processOCR = async () => {
     try {
       console.log(`Starting OCR processing for report ID: ${report._id}...`);
       const extractedText = await extractTextFromFile(filePath, req.file.mimetype);
@@ -61,7 +54,16 @@ const uploadReport = async (req, res) => {
       report.analysisStatus = 'failed';
       await report.save();
     }
-  }, 100);
+  };
+
+  // Run OCR processing
+  // On Vercel's serverless environment, background tasks are suspended after the response is sent,
+  // so we must run it synchronously. Otherwise we can run it asynchronously.
+  if (process.env.VERCEL) {
+    await processOCR();
+  } else {
+    setTimeout(processOCR, 100);
+  }
 
   res.status(202).json({
     message: 'Report uploaded and analysis started in the background.',
@@ -125,7 +127,8 @@ const deleteReport = async (req, res) => {
 
     // Attempt to delete file from disk
     const filename = path.basename(report.fileUrl);
-    const diskPath = path.join(__dirname, '..', 'uploads', filename);
+    const uploadDir = process.env.VERCEL ? '/tmp' : path.join(__dirname, '..', 'uploads');
+    const diskPath = path.join(uploadDir, filename);
     
     if (fs.existsSync(diskPath)) {
       fs.unlinkSync(diskPath);
