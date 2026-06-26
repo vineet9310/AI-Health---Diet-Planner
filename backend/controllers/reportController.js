@@ -3,6 +3,7 @@ const path = require('path');
 const MedicalReport = require('../models/MedicalReport');
 const { extractTextFromFile } = require('../services/ocrService');
 const { extractBiomarkers } = require('../services/biomarkerService');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../services/cloudinaryService');
 
 // @desc    Upload medical report & trigger OCR extraction
 // @route   POST /api/reports/upload
@@ -13,7 +14,17 @@ const uploadReport = async (req, res) => {
   }
 
   const filePath = req.file.path;
-  const fileUrl = `/uploads/${req.file.filename}`; // Serve locally via Express static
+  let fileUrl = `/uploads/${req.file.filename}`; // Serve locally via Express static by default
+
+  // Upload to Cloudinary if configured
+  try {
+    const cloudinaryUrl = await uploadToCloudinary(filePath);
+    if (cloudinaryUrl) {
+      fileUrl = cloudinaryUrl;
+    }
+  } catch (cloudinaryErr) {
+    console.error('Cloudinary upload error, falling back to local storage path:', cloudinaryErr);
+  }
   
   // Create report entry in 'pending' status
   const report = new MedicalReport({
@@ -53,6 +64,18 @@ const uploadReport = async (req, res) => {
       console.error(`Failed to process report ID ${report._id}:`, error);
       report.analysisStatus = 'failed';
       await report.save();
+    } finally {
+      // Cleanup local temporary file if uploaded to Cloudinary OR if running on Vercel
+      if (fileUrl.includes('cloudinary.com') || process.env.VERCEL) {
+        try {
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log(`Temporary file deleted: ${filePath}`);
+          }
+        } catch (unlinkErr) {
+          console.error(`Failed to delete temporary file ${filePath}:`, unlinkErr);
+        }
+      }
     }
   };
 
@@ -125,13 +148,17 @@ const deleteReport = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to delete this report' });
     }
 
-    // Attempt to delete file from disk
-    const filename = path.basename(report.fileUrl);
-    const uploadDir = process.env.VERCEL ? '/tmp' : path.join(__dirname, '..', 'uploads');
-    const diskPath = path.join(uploadDir, filename);
-    
-    if (fs.existsSync(diskPath)) {
-      fs.unlinkSync(diskPath);
+    if (report.fileUrl && report.fileUrl.includes('cloudinary.com')) {
+      await deleteFromCloudinary(report.fileUrl);
+    } else {
+      // Attempt to delete file from disk
+      const filename = path.basename(report.fileUrl);
+      const uploadDir = process.env.VERCEL ? '/tmp' : path.join(__dirname, '..', 'uploads');
+      const diskPath = path.join(uploadDir, filename);
+      
+      if (fs.existsSync(diskPath)) {
+        fs.unlinkSync(diskPath);
+      }
     }
 
     await report.deleteOne();
