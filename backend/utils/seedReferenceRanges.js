@@ -91,7 +91,47 @@ const sampleRanges = [
     criticalLow: 10,
     criticalHigh: 150,
     category: "vitamins",
-    aliases: ["Vitamin D", "25-Hydroxy Vitamin D", "Vit D", "Vitamin D3"]
+    aliases: ["Vitamin D", "25-Hydroxy Vitamin D", "Vit D", "Vitamin D3", "Vitamin D Total-25 Hydroxy"]
+  },
+  {
+    testName: "Vitamin B12",
+    unit: "pg/mL",
+    minNormal: 200,
+    maxNormal: 900,
+    criticalLow: 100,
+    criticalHigh: 1500,
+    category: "vitamins",
+    aliases: ["Vitamin B12", "Vit B12", "Cyanocobalamin", "Vitamin B12 Cyanocobalamin"]
+  },
+  {
+    testName: "RDW-CV",
+    unit: "%",
+    minNormal: 11.5,
+    maxNormal: 14.5,
+    criticalLow: 9.0,
+    criticalHigh: 18.0,
+    category: "blood count",
+    aliases: ["RDW-CV", "RDW", "Red Cell Distribution Width"]
+  },
+  {
+    testName: "MPV",
+    unit: "fL",
+    minNormal: 7.5,
+    maxNormal: 11.5,
+    criticalLow: 5.0,
+    criticalHigh: 15.0,
+    category: "blood count",
+    aliases: ["MPV", "Mean Platelet Volume"]
+  },
+  {
+    testName: "Absolute Lymphocyte Count",
+    unit: "10^3/uL",
+    minNormal: 1.0,
+    maxNormal: 3.0,
+    criticalLow: 0.5,
+    criticalHigh: 5.0,
+    category: "blood count",
+    aliases: ["ALC", "Absolute Lymphocytes", "Absolute Lymphocyte Count", "Lymphocytes - Absolute"]
   },
   {
     testName: "Creatinine",

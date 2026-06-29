@@ -256,59 +256,105 @@ const ReportUpload = ({ user }) => {
                 <p className="text-slate-500 text-sm">No reports uploaded yet.</p>
               </div>
             ) : (
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Upload Date</th>
-                      <th>Filename</th>
-                      <th>Analysis Status</th>
-                      <th className="text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reports.map((report) => {
-                      const status = getStatusIconAndClass(report.analysisStatus, report.hasCriticalFlag);
-                      return (
-                        <tr key={report._id}>
-                          <td className="text-slate-500">
+              <>
+                {/* Mobile Cards List (hidden on larger screens) */}
+                <div className="flex flex-col gap-3 sm:hidden">
+                  {reports.map((report) => {
+                    const status = getStatusIconAndClass(report.analysisStatus, report.hasCriticalFlag);
+                    return (
+                      <div key={report._id} className="glass-panel p-4 flex flex-col gap-3 border border-slate-200">
+                        <div className="flex justify-between items-start gap-3">
+                          <span className="font-semibold text-slate-800 break-all">{report.fileName}</span>
+                          <span className={`badge ${status.badgeClass} shrink-0`}>
+                            <status.icon className="w-3 h-3" />
+                            {status.text}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs text-slate-550 border-t border-slate-100 pt-2.5 mt-0.5">
+                          <span>
                             {new Date(report.uploadedAt).toLocaleDateString(undefined, {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric'
                             })}
-                          </td>
-                          <td className="font-semibold text-slate-800">{report.fileName}</td>
-                          <td>
-                            <span className={`badge ${status.badgeClass}`}>
-                              <status.icon className="w-3 h-3" />
-                              {status.text}
-                            </span>
-                          </td>
-                          <td className="text-right">
-                            <div className="flex gap-2 justify-end">
-                              {report.analysisStatus === 'processed' && (
-                                <Link 
-                                  to={`/reports/${report._id}`}
-                                  className="btn-secondary p-2 py-1 text-xs flex items-center gap-1.5 hover:text-emerald-400"
-                                >
-                                  <Eye className="w-3.5 h-3.5" /> View
-                                </Link>
-                              )}
-                              <button 
-                                onClick={(e) => handleDelete(report._id, e)}
-                                className="btn-secondary p-2 py-1 text-xs text-rose-400 hover:bg-rose-500/10"
+                          </span>
+                          <div className="flex gap-2">
+                            {report.analysisStatus === 'processed' && (
+                              <Link 
+                                to={`/reports/${report._id}`}
+                                className="btn-secondary p-2 py-1 text-xs flex items-center gap-1.5 hover:text-emerald-500"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                                <Eye className="w-3.5 h-3.5" /> View
+                              </Link>
+                            )}
+                            <button 
+                              onClick={(e) => handleDelete(report._id, e)}
+                              className="btn-secondary p-2 py-1 text-xs text-rose-500 hover:bg-rose-500/10 hover:border-rose-200"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop Table View (hidden on small screens) */}
+                <div className="table-container hidden sm:block">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Upload Date</th>
+                        <th>Filename</th>
+                        <th>Analysis Status</th>
+                        <th className="text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reports.map((report) => {
+                        const status = getStatusIconAndClass(report.analysisStatus, report.hasCriticalFlag);
+                        return (
+                          <tr key={report._id}>
+                            <td className="text-slate-500">
+                              {new Date(report.uploadedAt).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </td>
+                            <td className="font-semibold text-slate-800">{report.fileName}</td>
+                            <td>
+                              <span className={`badge ${status.badgeClass}`}>
+                                <status.icon className="w-3 h-3" />
+                                {status.text}
+                              </span>
+                            </td>
+                            <td className="text-right">
+                              <div className="flex gap-2 justify-end">
+                                {report.analysisStatus === 'processed' && (
+                                  <Link 
+                                    to={`/reports/${report._id}`}
+                                    className="btn-secondary p-2 py-1 text-xs flex items-center gap-1.5 hover:text-emerald-400"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" /> View
+                                  </Link>
+                                )}
+                                <button 
+                                  onClick={(e) => handleDelete(report._id, e)}
+                                  className="btn-secondary p-2 py-1 text-xs text-rose-400 hover:bg-rose-500/10"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </div>

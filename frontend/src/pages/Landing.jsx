@@ -87,11 +87,11 @@ const Landing = ({ user }) => {
       {/* Safety & Compliance Grid */}
       <section className="w-full max-w-4xl flex flex-col gap-6 items-center">
         <div className="glass-panel p-8 w-full border border-emerald-500/15">
-          <div className="flex flex-col md:flex-row items-center gap-6">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-2xl shrink-0">
               <ShieldCheck className="w-10 h-10" />
             </div>
-            <div className="text-left">
+            <div className="text-center md:text-left">
               <h3 className="text-xl font-bold mb-2 font-heading">Clinical Review & Safety Filters</h3>
               <p className="text-slate-400 text-sm leading-relaxed mb-3">
                 Your safety is our priority. If any health conditions (like diabetes, thyroid issues, or heart conditions) or borderline lab markers are detected, your AI plan is automatically held in a clinical queue. Licensed nutritionists inspect, edit, and approve your plans before you ever see them.

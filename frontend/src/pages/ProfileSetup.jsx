@@ -299,48 +299,48 @@ const ProfileSetup = () => {
       <div className="glass-panel p-6 flex flex-col gap-5">
         
         {/* Step Indicator Headers */}
-        <div className="flex justify-between items-center relative pb-3 border-b border-slate-100 flex-wrap gap-2">
+        <div className="flex justify-between items-center relative pb-3 border-b border-slate-100 gap-2 w-full">
           <div className="flex items-center gap-2">
             <div className={`p-1.5 rounded-lg ${step >= 1 ? 'bg-emerald-500/15 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
               <User className="w-4 h-4" />
             </div>
-            <div className="text-left">
+            <div className="text-left hidden sm:block">
               <p className="text-[8px] uppercase font-bold text-slate-500 tracking-wider">Step 1</p>
               <h4 className="text-xs font-bold font-heading text-slate-900">Personal Info</h4>
             </div>
           </div>
           
-          <div className="w-4 h-px bg-slate-200" />
+          <div className="flex-1 sm:flex-none sm:w-8 h-px bg-slate-200" />
 
           <div className="flex items-center gap-2">
             <div className={`p-1.5 rounded-lg ${step >= 2 ? 'bg-emerald-500/15 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
               <Dumbbell className="w-4 h-4" />
             </div>
-            <div className="text-left">
+            <div className="text-left hidden sm:block">
               <p className="text-[8px] uppercase font-bold text-slate-500 tracking-wider">Step 2</p>
               <h4 className="text-xs font-bold font-heading text-slate-900">Body Metrics</h4>
             </div>
           </div>
 
-          <div className="w-4 h-px bg-slate-200" />
+          <div className="flex-1 sm:flex-none sm:w-8 h-px bg-slate-200" />
 
           <div className="flex items-center gap-2">
             <div className={`p-1.5 rounded-lg ${step >= 3 ? 'bg-emerald-500/15 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
               <Heart className="w-4 h-4" />
             </div>
-            <div className="text-left">
+            <div className="text-left hidden sm:block">
               <p className="text-[8px] uppercase font-bold text-slate-500 tracking-wider">Step 3</p>
               <h4 className="text-xs font-bold font-heading text-slate-900">Goals & Diet</h4>
             </div>
           </div>
 
-          <div className="w-4 h-px bg-slate-200" />
+          <div className="flex-1 sm:flex-none sm:w-8 h-px bg-slate-200" />
 
           <div className="flex items-center gap-2">
             <div className={`p-1.5 rounded-lg ${step >= 4 ? 'bg-emerald-500/15 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
               <ShieldAlert className="w-4 h-4" />
             </div>
-            <div className="text-left">
+            <div className="text-left hidden sm:block">
               <p className="text-[8px] uppercase font-bold text-slate-500 tracking-wider">Step 4</p>
               <h4 className="text-xs font-bold font-heading text-slate-900">Clinical & Habits</h4>
             </div>
@@ -722,7 +722,7 @@ const ProfileSetup = () => {
 
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Lifestyle Habits</label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div>
                       <span className="text-[8px] text-slate-400 block mb-0.5">Smoking</span>
                       <select value={smoking} onChange={(e) => setSmoking(e.target.value)} className="glass-input py-1 px-1.5 text-[10px] w-full cursor-pointer">

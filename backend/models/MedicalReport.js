@@ -20,8 +20,14 @@ const MedicalReportSchema = new mongoose.Schema({
   }],
   doctorSummary: { type: String },                       // Clinically structured summary of report findings
   healthRecommendations: [{ type: String }],             // List of custom clinical action items based on biomarkers
+  patientExplanation: { type: mongoose.Schema.Types.Mixed }, // Structured patient-friendly explanation
+  clinicalReasoning: { type: mongoose.Schema.Types.Mixed },  // Structured physician-level reasoning
   hasCriticalFlag: { type: Boolean, default: false },
-  analysisStatus: { type: String, enum: ['pending', 'processed', 'failed'], default: 'pending' }
+  analysisStatus: { type: String, enum: ['pending', 'processed', 'failed'], default: 'pending' },
+  failureReason: { type: String },
+  extractionConfidence: { type: Number },
+  clinicalReasoningConfidence: { type: Number },
+  overallConfidence: { type: Number }
 });
 
 module.exports = mongoose.model('MedicalReport', MedicalReportSchema);

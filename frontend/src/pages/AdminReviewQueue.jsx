@@ -9,7 +9,8 @@ import {
   Plus, 
   Minus,
   Save,
-  MessageSquare
+  MessageSquare,
+  ArrowLeft
 } from 'lucide-react';
 import api from '../utils/api';
 
@@ -171,7 +172,7 @@ const AdminReviewQueue = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Left Column: Queue List */}
-          <div className="lg:col-span-1 flex flex-col gap-4">
+          <div className={`lg:col-span-1 flex flex-col gap-4 ${selectedEntry ? 'hidden lg:flex' : 'flex'}`}>
             <h3 className="text-xs uppercase font-bold text-slate-500 tracking-wider">Review Pipeline ({queue.length})</h3>
             
             <div className="flex flex-col gap-3">
@@ -199,7 +200,13 @@ const AdminReviewQueue = () => {
 
           {/* Right Column: Interactive Editor Form */}
           {selectedEntry && (
-            <div className="lg:col-span-2 flex flex-col gap-6">
+            <div className={`lg:col-span-2 flex flex-col gap-6 ${selectedEntry ? 'flex' : 'hidden lg:flex'}`}>
+              <button 
+                onClick={() => setSelectedEntry(null)} 
+                className="lg:hidden btn-secondary self-start text-xs flex items-center gap-1.5 mb-2 hover:text-emerald-700 cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" /> Back to Review Pipeline
+              </button>
               
               {/* Header Info Panel */}
               <div className="glass-panel p-6 flex flex-col gap-4 bg-slate-50">

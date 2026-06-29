@@ -296,34 +296,36 @@ p.text-slate-200, span.text-slate-200, label.text-slate-200, div.text-slate-200 
   color: #334155 !important; /* Promotes Slate-200 to Slate-700 */
 }
 
-/* Scaled up Font Sizing for Dashboard Readability - Balanced values */
-.dashboard-container .text-\[9px\] {
-  font-size: 0.65rem !important; /* 10.4px */
-}
-.dashboard-container .text-\[10px\] {
-  font-size: 0.725rem !important; /* 11.6px */
-}
-.dashboard-container .text-\[11px\] {
-  font-size: 0.775rem !important; /* 12.4px */
-}
-.dashboard-container .text-xs {
-  font-size: 0.825rem !important; /* 13.2px */
-}
-.dashboard-container .text-sm {
-  font-size: 0.95rem !important; /* 15.2px */
-}
-.dashboard-container .text-base {
-  font-size: 1.05rem !important; /* 16.8px */
-}
-.dashboard-container .text-lg {
-  font-size: 1.2rem !important; /* 19.2px */
-}
-.dashboard-container .text-xl {
-  font-size: 1.4rem !important; /* 22.4px */
-}
-.dashboard-container .text-2xl {
-  font-size: 1.7rem !important; /* 27.2px */
-}
-.dashboard-container .text-3xl {
-  font-size: 2.1rem !important; /* 33.6px */
+/* Scaled up Font Sizing for Dashboard Readability - Balanced values on larger screens */
+@media (min-width: 768px) {
+  .dashboard-container .text-\[9px\] {
+    font-size: 0.65rem !important; /* 10.4px */
+  }
+  .dashboard-container .text-\[10px\] {
+    font-size: 0.725rem !important; /* 11.6px */
+  }
+  .dashboard-container .text-\[11px\] {
+    font-size: 0.775rem !important; /* 12.4px */
+  }
+  .dashboard-container .text-xs {
+    font-size: 0.825rem !important; /* 13.2px */
+  }
+  .dashboard-container .text-sm {
+    font-size: 0.95rem !important; /* 15.2px */
+  }
+  .dashboard-container .text-base {
+    font-size: 1.05rem !important; /* 16.8px */
+  }
+  .dashboard-container .text-lg {
+    font-size: 1.2rem !important; /* 19.2px */
+  }
+  .dashboard-container .text-xl {
+    font-size: 1.4rem !important; /* 22.4px */
+  }
+  .dashboard-container .text-2xl {
+    font-size: 1.7rem !important; /* 27.2px */
+  }
+  .dashboard-container .text-3xl {
+    font-size: 2.1rem !important; /* 33.6px */
+  }
 }

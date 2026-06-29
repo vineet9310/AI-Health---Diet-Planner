@@ -88,58 +88,93 @@ const AdminUsers = () => {
 
       </div>
 
-      {/* Users Database Table */}
+      {/* Users Database list */}
       <div className="glass-panel p-6">
         {filteredUsers.length === 0 ? (
           <div className="text-center py-12 text-slate-500 text-sm">
             No matching users found in directory.
           </div>
         ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Patient Name</th>
-                  <th>Email Address</th>
-                  <th>System Role</th>
-                  <th>Registration Date</th>
-                  <th>Account Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((u) => (
-                  <tr key={u._id}>
-                    <td>
-                      <div className="font-bold text-slate-800">{u.name}</div>
-                    </td>
-                    <td className="text-slate-600 font-mono text-xs">{u.email}</td>
-                    <td>
-                      <span className={`badge ${
-                        u.role === 'admin' 
-                          ? 'badge-critical' 
-                          : u.role === 'nutritionist' 
-                            ? 'badge-borderline' 
-                            : 'badge-normal'
-                      }`}>
-                        {u.role}
-                      </span>
-                    </td>
-                    <td className="text-slate-600">
-                      {new Date(u.createdAt).toLocaleDateString(undefined, {
+          <>
+            {/* Mobile Cards List (hidden on larger screens) */}
+            <div className="flex flex-col gap-3 sm:hidden">
+              {filteredUsers.map((u) => (
+                <div key={u._id} className="glass-panel p-4 flex flex-col gap-2 border border-slate-200">
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="font-bold text-slate-850 text-sm">{u.name}</span>
+                    <span className={`badge ${
+                      u.role === 'admin' 
+                        ? 'badge-critical' 
+                        : u.role === 'nutritionist' 
+                          ? 'badge-borderline' 
+                          : 'badge-normal'
+                    }`}>
+                      {u.role}
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-600 font-mono break-all">{u.email}</div>
+                  <div className="flex justify-between items-center text-[10px] text-slate-500 border-t border-slate-100 pt-2.5 mt-0.5">
+                    <span>
+                      Joined: {new Date(u.createdAt).toLocaleDateString(undefined, {
                         year: 'numeric', month: 'short', day: 'numeric'
                       })}
-                    </td>
-                    <td>
-                      <span className="text-xs text-emerald-700 flex items-center gap-1.5 font-semibold">
-                        <span className="h-2 w-2 rounded-full bg-emerald-600"></span>
-                        Active
-                      </span>
-                    </td>
+                    </span>
+                    <span className="text-xs text-emerald-750 flex items-center gap-1 font-semibold">
+                      <span className="h-2 w-2 rounded-full bg-emerald-600"></span>
+                      Active
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View (hidden on small screens) */}
+            <div className="table-container hidden sm:block">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Patient Name</th>
+                    <th>Email Address</th>
+                    <th>System Role</th>
+                    <th>Registration Date</th>
+                    <th>Account Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {filteredUsers.map((u) => (
+                    <tr key={u._id}>
+                      <td>
+                        <div className="font-bold text-slate-800">{u.name}</div>
+                      </td>
+                      <td className="text-slate-600 font-mono text-xs">{u.email}</td>
+                      <td>
+                        <span className={`badge ${
+                          u.role === 'admin' 
+                            ? 'badge-critical' 
+                            : u.role === 'nutritionist' 
+                              ? 'badge-borderline' 
+                              : 'badge-normal'
+                        }`}>
+                          {u.role}
+                        </span>
+                      </td>
+                      <td className="text-slate-600">
+                        {new Date(u.createdAt).toLocaleDateString(undefined, {
+                          year: 'numeric', month: 'short', day: 'numeric'
+                        })}
+                      </td>
+                      <td>
+                        <span className="text-xs text-emerald-700 flex items-center gap-1.5 font-semibold">
+                          <span className="h-2 w-2 rounded-full bg-emerald-600"></span>
+                          Active
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

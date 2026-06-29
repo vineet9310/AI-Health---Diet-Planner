@@ -126,7 +126,7 @@ const Navbar = ({ user, onLogout }) => {
 
       {/* Mobile Drawer */}
       {isOpen && (
-        <div className="absolute top-[69px] left-0 right-0 glass-panel rounded-none border-x-0 border-b border-t-0 p-6 flex flex-col gap-5 bg-white shadow-2xl lg:hidden">
+        <div className="absolute top-[69px] left-0 right-0 rounded-none border-b border-slate-200 p-6 flex flex-col gap-5 bg-white shadow-2xl lg:hidden z-50">
           {user && (
             <div className="pb-3 border-b border-slate-100 flex items-center justify-between">
               <span className="text-sm font-semibold text-slate-700">

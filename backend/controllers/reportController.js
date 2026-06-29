@@ -37,16 +37,69 @@ const uploadReport = async (req, res) => {
   await report.save();
 
   const processOCR = async () => {
+    let extractedText = '';
+    
+    // Step 1: Run OCR / Text Extraction
     try {
       console.log(`Starting OCR processing for report ID: ${report._id}...`);
-      const extractedText = await extractTextFromFile(filePath, req.file.mimetype);
       
-      console.log(`Extracting biomarkers from OCR text...`);
-      const { biomarkers, hasCriticalFlag } = await extractBiomarkers(extractedText);
+      extractedText = await extractTextFromFile(filePath, req.file.mimetype);
+      if (!extractedText || extractedText.trim().length === 0) {
+        throw new Error('OCR extracted empty text. The file might contain unsupported graphics or empty pages.');
+      }
+    } catch (ocrErr) {
+      console.error(`OCR processing failed for report ID ${report._id}:`, ocrErr);
+      report.analysisStatus = 'failed';
+      report.failureReason = ocrErr.message || 'We could not extract any readable text from this PDF file. Please ensure it is a valid document.';
+      await report.save();
+      return; // Fail fast
+    }
 
-      // Generate clinical risk score, summary, and custom recommendations
+    // Step 2: Run Biomarker Extraction & Clinical Analysis
+    try {
+      console.log(`Extracting biomarkers from OCR text...`);
+      const { biomarkers, hasCriticalFlag, extractionConfidence, providerName: biomarkerProvider } = await extractBiomarkers(extractedText);
+
+      if (!biomarkers || biomarkers.length === 0) {
+        throw new Error('No valid biomarkers could be confidently extracted from this report.');
+      }
+
+      // Generate clinical risk score, summary, and custom recommendations (async AI clinical reasoning)
       const { generateReportAnalytics } = require('../services/analyticsService');
-      const { riskScore, riskCategory, doctorSummary, healthRecommendations, riskFactors } = generateReportAnalytics(biomarkers);
+      const { 
+        riskScore, 
+        riskCategory, 
+        doctorSummary, 
+        healthRecommendations, 
+        riskFactors, 
+        clinicalReasoningConfidence, 
+        patientExplanation, 
+        clinicalReasoning,
+        providerName: clinicalProvider
+      } = await generateReportAnalytics(biomarkers);
+
+      // Determine successful AI provider for logging (or fallback rules engine)
+      const activeAIProvider = biomarkerProvider || clinicalProvider || 'Medical Rules Engine';
+
+      // Confidence engine calculations: Extraction + Clinical + Rules (100)
+      const extConf = extractionConfidence || 85.0;
+      const clinConf = clinicalReasoningConfidence || 90.0;
+      const rulesConf = 100.0;
+      const calculatedOverall = Math.round((extConf + clinConf + rulesConf) / 3);
+
+      // Print logs matching required format exactly
+      console.log('===== AI PROVIDER =====');
+      console.log(activeAIProvider);
+      console.log('\n===== BIOMARKER JSON =====');
+      console.log(JSON.stringify(biomarkers, null, 2));
+      console.log('\n===== PATIENT VIEW =====');
+      console.log(JSON.stringify(patientExplanation, null, 2));
+      console.log('\n===== DOCTOR VIEW =====');
+      console.log(JSON.stringify(clinicalReasoning, null, 2));
+      console.log('\n===== CONFIDENCE =====');
+      console.log(`Extraction: ${Math.round(extConf)}%`);
+      console.log(`Clinical: ${Math.round(clinConf)}%`);
+      console.log(`Overall: ${calculatedOverall}%`);
 
       report.rawExtractedText = extractedText;
       report.biomarkers = biomarkers;
@@ -56,13 +109,19 @@ const uploadReport = async (req, res) => {
       report.riskFactors = riskFactors;
       report.doctorSummary = doctorSummary;
       report.healthRecommendations = healthRecommendations;
+      report.patientExplanation = patientExplanation;
+      report.clinicalReasoning = clinicalReasoning;
+      report.extractionConfidence = extConf;
+      report.clinicalReasoningConfidence = clinConf;
+      report.overallConfidence = calculatedOverall;
       report.analysisStatus = 'processed';
       
       await report.save();
-      console.log(`Report processing completed for ID: ${report._id}. Biomarkers: ${biomarkers.length}, Risk Score: ${riskScore}, Critical: ${hasCriticalFlag}`);
-    } catch (error) {
-      console.error(`Failed to process report ID ${report._id}:`, error);
+      console.log(`Report processing completed for ID: ${report._id}. Biomarkers: ${biomarkers.length}, Risk Score: ${riskScore}, Critical: ${hasCriticalFlag}, Overall Confidence: ${report.overallConfidence}%`);
+    } catch (aiErr) {
+      console.error(`AI analysis failed for report ID ${report._id}:`, aiErr);
       report.analysisStatus = 'failed';
+      report.failureReason = aiErr.message || 'AI service is temporarily busy or unavailable. We could not confidently analyze your report.';
       await report.save();
     } finally {
       // Cleanup local temporary file if uploaded to Cloudinary OR if running on Vercel

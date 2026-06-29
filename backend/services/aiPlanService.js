@@ -1,5 +1,4 @@
-const { GoogleGenAI } = require('@google/generative-ai');
-const Anthropic = require('@anthropic-ai/sdk');
+const { callAI } = require('./aiService');
 
 /**
  * Generate mock plan if no API keys are provided.
@@ -465,77 +464,20 @@ Required JSON Structure:
 };
 
 /**
- * Call Gemini API to generate structured plan
- */
-const generateGeminiPlan = async (apiKey, healthProfile, flaggedBiomarkers, reportDetails) => {
-  const { GoogleGenerativeAI } = require('@google/generative-ai');
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-  const prompt = buildPrompt(healthProfile, flaggedBiomarkers, reportDetails);
-
-  try {
-    const result = await model.generateContent(prompt);
-    let text = result.response.text().trim();
-    if (text.startsWith('```')) {
-      text = text.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
-    }
-    return JSON.parse(text);
-  } catch (error) {
-    console.error('Gemini API planning failed, attempting to parse output:', error);
-    throw error;
-  }
-};
-
-/**
- * Call Anthropic API to generate structured plan
- */
-const generateAnthropicPlan = async (apiKey, healthProfile, flaggedBiomarkers, reportDetails) => {
-  const anthropic = new Anthropic({ apiKey });
-
-  const prompt = buildPrompt(healthProfile, flaggedBiomarkers, reportDetails);
-
-  try {
-    const msg = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307',
-      max_tokens: 2000,
-      temperature: 0.2,
-      system: 'You generate personalized diet and workout plans in JSON format only.',
-      messages: [{ role: 'user', content: prompt }]
-    });
-
-    let text = msg.content[0].text.trim();
-    if (text.startsWith('```')) {
-      text = text.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
-    }
-    return JSON.parse(text);
-  } catch (error) {
-    console.error('Anthropic API planning failed:', error);
-    throw error;
-  }
-};
-
-/**
- * Main service method to generate plans
+ * Main service method to generate plans using Multi-Provider AI Engine
  */
 const generateAIPlan = async (healthProfile, flaggedBiomarkers, reportDetails = null) => {
-  const geminiKey = process.env.GEMINI_API_KEY;
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  const prompt = buildPrompt(healthProfile, flaggedBiomarkers, reportDetails);
 
-  if (geminiKey) {
-    try {
-      return await generateGeminiPlan(geminiKey, healthProfile, flaggedBiomarkers, reportDetails);
-    } catch (e) {
-      console.warn('Gemini Generation failed, falling back to mock plan:', e.message);
+  try {
+    console.log('[AI Engine] Generating diet and exercise plan using Multi-Provider AI Engine...');
+    const result = await callAI(prompt, 'plan');
+    if (result && result.data) {
+      console.log(`[AI Engine] Plan generated successfully using ${result.providerName}.`);
+      return result.data;
     }
-  }
-
-  if (anthropicKey) {
-    try {
-      return await generateAnthropicPlan(anthropicKey, healthProfile, flaggedBiomarkers, reportDetails);
-    } catch (e) {
-      console.warn('Anthropic Generation failed, falling back to mock plan:', e.message);
-    }
+  } catch (error) {
+    console.warn('[AI Engine] All AI providers failed for plan generation, falling back to Deterministic Medical Rules / Mock Plan Generator:', error.message);
   }
 
   // Fallback to mock generation

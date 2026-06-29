@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Plus, Edit, Save, Trash, AlertCircle, RefreshCw, X } from 'lucide-react';
+import { Settings, Plus, Edit, Save, Trash, AlertCircle, RefreshCw, X, CheckCircle } from 'lucide-react';
 import api from '../utils/api';
 
 const AdminReferenceRanges = () => {
@@ -173,68 +173,128 @@ const AdminReferenceRanges = () => {
           <div className="glass-panel p-6 flex flex-col gap-4">
             <h3 className="text-lg font-bold font-heading">Existing Indicators</h3>
 
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr className="bg-slate-50">
-                    <th>Marker Name</th>
-                    <th>Optimal Range</th>
-                    <th>Crit Low</th>
-                    <th>Crit High</th>
-                    <th>Category</th>
-                    <th className="text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ranges.map((range) => (
-                    <tr key={range._id} className="hover:bg-slate-50">
-                      <td>
-                        <div className="font-bold text-slate-800">{range.testName}</div>
+            <>
+              {/* Mobile Cards List (hidden on larger screens) */}
+              <div className="flex flex-col gap-3 sm:hidden">
+                {ranges.map((range) => (
+                  <div key={range._id} className="glass-panel p-4 flex flex-col gap-3 border border-slate-200">
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <div className="font-bold text-slate-800 text-sm">{range.testName}</div>
                         <div className="text-[10px] text-slate-500 mt-0.5">Aliases: {range.aliases?.join(', ') || 'None'}</div>
-                        {(range.borderlineLowThreshold || range.borderlineHighThreshold) && (
-                          <div className="text-[10px] text-teal-700 mt-0.5 font-semibold">
-                            Custom Borders: Low={range.borderlineLowThreshold || '0.80'}x, High={range.borderlineHighThreshold || '1.20'}x
-                          </div>
-                        )}
-                      </td>
-                      <td className="font-semibold text-emerald-700 text-xs">
-                        {range.minNormal} - {range.maxNormal} <span className="text-[10px] text-slate-500">{range.unit}</span>
-                      </td>
-                      <td className="text-rose-700 text-xs">{range.criticalLow || 'N/A'}</td>
-                      <td className="text-rose-700 text-xs">{range.criticalHigh || 'N/A'}</td>
-                      <td>
-                        <span className="text-xs uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700">
-                          {range.category}
+                      </div>
+                      <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 shrink-0 font-semibold">
+                        {range.category}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-xs border-t border-slate-100 pt-2.5 font-semibold">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[9px] text-slate-450 uppercase font-bold">Optimal Range</span>
+                        <span className="text-emerald-700">{range.minNormal} - {range.maxNormal} {range.unit}</span>
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[9px] text-slate-455 uppercase font-bold">Critical Limits</span>
+                        <span className="text-rose-700">
+                          Low: {range.criticalLow || 'N/A'} | High: {range.criticalHigh || 'N/A'}
                         </span>
-                      </td>
-                      <td className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <button 
-                            onClick={() => handleEditSelect(range)}
-                            className="btn-secondary p-1.5 text-xs text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                            title="Edit Range"
-                          >
-                            <Edit className="w-3.5 h-3.5" />
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(range._id)}
-                            className="btn-secondary p-1.5 text-xs text-rose-600 hover:bg-rose-50"
-                            title="Delete Range"
-                          >
-                            <Trash className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
+                      </div>
+                    </div>
+                    
+                    {(range.borderlineLowThreshold || range.borderlineHighThreshold) && (
+                      <div className="text-[10px] text-teal-700 font-semibold bg-teal-500/5 border border-teal-100 p-2 rounded-lg leading-normal mt-0.5">
+                        Custom Borders: Low={range.borderlineLowThreshold || '0.80'}x, High={range.borderlineHighThreshold || '1.20'}x
+                      </div>
+                    )}
+
+                    <div className="flex justify-end gap-2 border-t border-slate-100 pt-2.5 mt-0.5">
+                      <button 
+                        onClick={() => {
+                          handleEditSelect(range);
+                          setTimeout(() => {
+                            const formElement = document.getElementById('range-form-container');
+                            if (formElement) formElement.scrollIntoView({ behavior: 'smooth' });
+                          }, 100);
+                        }}
+                        className="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1 hover:text-teal-750"
+                      >
+                        <Edit className="w-3.5 h-3.5" /> Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(range._id)}
+                        className="btn-secondary py-1.5 px-3 text-xs text-rose-500 hover:bg-rose-50 flex items-center gap-1 hover:border-rose-200"
+                      >
+                        <Trash className="w-3.5 h-3.5" /> Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View (hidden on small screens) */}
+              <div className="table-container hidden sm:block">
+                <table>
+                  <thead>
+                    <tr className="bg-slate-50">
+                      <th>Marker Name</th>
+                      <th>Optimal Range</th>
+                      <th>Crit Low</th>
+                      <th>Crit High</th>
+                      <th>Category</th>
+                      <th className="text-right">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {ranges.map((range) => (
+                      <tr key={range._id} className="hover:bg-slate-50">
+                        <td>
+                          <div className="font-bold text-slate-800">{range.testName}</div>
+                          <div className="text-[10px] text-slate-500 mt-0.5">Aliases: {range.aliases?.join(', ') || 'None'}</div>
+                          {(range.borderlineLowThreshold || range.borderlineHighThreshold) && (
+                            <div className="text-[10px] text-teal-700 mt-0.5 font-semibold">
+                              Custom Borders: Low={range.borderlineLowThreshold || '0.80'}x, High={range.borderlineHighThreshold || '1.20'}x
+                            </div>
+                          )}
+                        </td>
+                        <td className="font-semibold text-emerald-700 text-xs">
+                          {range.minNormal} - {range.maxNormal} <span className="text-[10px] text-slate-500">{range.unit}</span>
+                        </td>
+                        <td className="text-rose-700 text-xs">{range.criticalLow || 'N/A'}</td>
+                        <td className="text-rose-700 text-xs">{range.criticalHigh || 'N/A'}</td>
+                        <td>
+                          <span className="text-xs uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700">
+                            {range.category}
+                          </span>
+                        </td>
+                        <td className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <button 
+                              onClick={() => handleEditSelect(range)}
+                              className="btn-secondary p-1.5 text-xs text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                              title="Edit Range"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(range._id)}
+                              className="btn-secondary p-1.5 text-xs text-rose-600 hover:bg-rose-50"
+                              title="Delete Range"
+                            >
+                              <Trash className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           </div>
         </div>
 
         {/* Right Column: Add/Edit Panel Form */}
-        <div className="lg:col-span-1">
+        <div id="range-form-container" className="lg:col-span-1">
           <div className="glass-panel p-6">
             <div className="flex justify-between items-center pb-3 border-b border-slate-200 mb-5">
               <h3 className="text-lg font-bold font-heading flex items-center gap-1.5">

@@ -46,3 +46,9 @@ lerna-debug.log*
 *.sw?
 .DS_Store
 Thumbs.db
+
+# Documents and Reports
+*.pdf
+*.xlsx
+*.xls
+*.csv
